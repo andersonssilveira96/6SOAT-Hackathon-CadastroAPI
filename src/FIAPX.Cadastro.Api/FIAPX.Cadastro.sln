@@ -3,17 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIAPX.Cadastro.Api", "FIAPX.Cadastro.Api.csproj", "{FCFADF5E-C722-4DB9-87BD-77338343710C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIAPX.Cadastro.Api", "FIAPX.Cadastro.Api.csproj", "{FCFADF5E-C722-4DB9-87BD-77338343710C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIAPX.Cadastro.Application", "..\FIAPX.Cadastro.Application\FIAPX.Cadastro.Application.csproj", "{09D8069D-0D59-4138-90C0-209448EAB165}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIAPX.Cadastro.Application", "..\FIAPX.Cadastro.Application\FIAPX.Cadastro.Application.csproj", "{09D8069D-0D59-4138-90C0-209448EAB165}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIAPX.Cadastro.Domain", "..\FIAPX.Cadastro.Domain\FIAPX.Cadastro.Domain.csproj", "{191FDB33-E64E-4CF8-82B5-3E4491B02958}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIAPX.Cadastro.Domain", "..\FIAPX.Cadastro.Domain\FIAPX.Cadastro.Domain.csproj", "{191FDB33-E64E-4CF8-82B5-3E4491B02958}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIAPX.Cadastro.Infra", "..\FIAPX.Cadastro.Infra\FIAPX.Cadastro.Infra.csproj", "{86045FB3-8C44-4202-8C33-F7D619CFB24D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIAPX.Cadastro.Infra", "..\FIAPX.Cadastro.Infra\FIAPX.Cadastro.Infra.csproj", "{86045FB3-8C44-4202-8C33-F7D619CFB24D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D229E192-6D38-45FA-8A94-2BEEF8423AEF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6457194A-0297-42DC-82AA-900663B8705C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIAPX.Cadastro.Domain.Tests", "..\..\tests\FIAPX.Cadastro.Domain.Tests\FIAPX.Cadastro.Domain.Tests.csproj", "{5632615B-9E0F-4846-A6C0-5867F22B8E00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{86045FB3-8C44-4202-8C33-F7D619CFB24D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86045FB3-8C44-4202-8C33-F7D619CFB24D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86045FB3-8C44-4202-8C33-F7D619CFB24D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5632615B-9E0F-4846-A6C0-5867F22B8E00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5632615B-9E0F-4846-A6C0-5867F22B8E00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5632615B-9E0F-4846-A6C0-5867F22B8E00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5632615B-9E0F-4846-A6C0-5867F22B8E00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +52,7 @@ Global
 		{09D8069D-0D59-4138-90C0-209448EAB165} = {D229E192-6D38-45FA-8A94-2BEEF8423AEF}
 		{191FDB33-E64E-4CF8-82B5-3E4491B02958} = {D229E192-6D38-45FA-8A94-2BEEF8423AEF}
 		{86045FB3-8C44-4202-8C33-F7D619CFB24D} = {D229E192-6D38-45FA-8A94-2BEEF8423AEF}
+		{5632615B-9E0F-4846-A6C0-5867F22B8E00} = {6457194A-0297-42DC-82AA-900663B8705C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {81688F94-21DF-4AD8-9A5D-93DB7435F8E4}
