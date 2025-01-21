@@ -1,3 +1,5 @@
+using FIAPX.Cadastro.Application.DTOs;
+using FIAPX.Cadastro.Application.UseCase;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FIAPX.Cadastro.Api.Controllers
@@ -5,17 +7,13 @@ namespace FIAPX.Cadastro.Api.Controllers
     [ApiController]
     [Route("[controller]")]
     public class ArquivoController : ControllerBase
-    {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
+    {       
         private readonly ILogger<ArquivoController> _logger;
-
-        public ArquivoController(ILogger<ArquivoController> logger)
+        private readonly IArquivoUseCase _arquivoUseCase;
+        public ArquivoController(ILogger<ArquivoController> logger, IArquivoUseCase arquivoUseCase)
         {
             _logger = logger;
+            _arquivoUseCase = arquivoUseCase;
         }
 
         [HttpPost]
@@ -26,21 +24,35 @@ namespace FIAPX.Cadastro.Api.Controllers
                 return BadRequest("Nenhum arquivo foi enviado ou o arquivo está vazio.");
             }
 
-            try
+            if (!file.ContentType.StartsWith("video/"))
             {
-                //var filePath = Path.Combine(_uploadFolder, file.FileName);
-
-                //using (var stream = new FileStream(filePath, FileMode.Create))
-                //{
-                //    await file.CopyToAsync(stream);
-                //}
-
-                return Ok(new { Message = "Upload realizado com sucesso!" });
+                return BadRequest("Apenas arquivos de vídeo são permitidos.");
             }
-            catch (System.Exception ex)
+
+            if (file.Length > 52428800) // 50 MB
             {
-                return StatusCode(500, $"Erro no upload: {ex.Message}");
+                return BadRequest("O arquivo enviado é maior que o limite permitido (50 MB).");
             }
+
+            var arquivo = new ArquivoDto
+            {
+                ContentType = file.ContentType,
+                FileName = file.FileName              
+            };
+
+            using var stream = file.OpenReadStream();
+
+            await _arquivoUseCase.CreateFile(arquivo, stream);
+
+            return Ok(new { Message = "Upload realizado com sucesso!" });           
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            var arquivos = await _arquivoUseCase.GetAll();
+
+            return Ok(arquivos);
         }
     }
 }

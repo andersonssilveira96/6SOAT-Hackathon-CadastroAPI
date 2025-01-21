@@ -7,14 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Config\" />
+    <Compile Remove="Class1.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="RabbitMQ.Client" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FIAPX.Cadastro.Application\FIAPX.Cadastro.Application.csproj" />
     <ProjectReference Include="..\FIAPX.Cadastro.Domain\FIAPX.Cadastro.Domain.csproj" />
   </ItemGroup>
 

@@ -17,8 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FIAPX.Cadastro.Application\FIAPX.Cadastro.Application.csproj" />
-    <ProjectReference Include="..\FIAPX.Cadastro.Infra.Data\FIAPX.Cadastro.Infra.Data.csproj" />
-    <ProjectReference Include="..\FIAPX.Cadastro.Infra.MessageBroker\FIAPX.Cadastro.Infra.MessageBroker.csproj" />
+    <ProjectReference Include="..\FIAPX.Cadastro.Infra.Data\FIAPX.Cadastro.Infra.Data.Data.csproj" />
   </ItemGroup>
 
 </Project>

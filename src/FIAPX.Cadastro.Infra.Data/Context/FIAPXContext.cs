@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FIAPX.Cadastro.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-namespace FIAPX.Cadastro.Infra.Context
+namespace FIAPX.Cadastro.Infra.Data.Context
 {
     public sealed class FIAPXContext : DbContext
     {
@@ -8,5 +9,7 @@ namespace FIAPX.Cadastro.Infra.Context
             : base(options)
         {
         }
+
+        public DbSet<Arquivo> Arquivo { get; set; }
     }
 }
