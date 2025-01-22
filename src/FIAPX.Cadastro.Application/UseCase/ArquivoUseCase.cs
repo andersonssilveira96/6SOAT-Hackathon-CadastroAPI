@@ -55,7 +55,7 @@ namespace FIAPX.Cadastro.Application.UseCase
             var uploadRequest = new PutObjectRequest
             {
                 BucketName = bucketName,
-                Key = keyName,
+                Key = $"{keyName}/{keyName}{GetVideoExtensionFromContentType(contentType)}",
                 InputStream = fileStream,
                 ContentType = contentType
             };
@@ -64,7 +64,24 @@ namespace FIAPX.Cadastro.Application.UseCase
 
             Console.WriteLine($"Status do upload: {response.HttpStatusCode}");
         }
+        private static string GetVideoExtensionFromContentType(string contentType)
+        {
+            var videoMimeMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "video/mp4", ".mp4" },
+                { "video/x-msvideo", ".avi" },
+                { "video/x-matroska", ".mkv" },
+                { "video/webm", ".webm" },
+                { "video/ogg", ".ogv" },
+                { "video/mpeg", ".mpeg" },
+                { "video/quicktime", ".mov" },
+                { "video/x-flv", ".flv" },
+                { "video/3gpp", ".3gp" },
+                { "video/3gpp2", ".3g2" }
+            };
 
+            return videoMimeMapping.TryGetValue(contentType, out var extension) ? extension : string.Empty;
+        }
         public async Task<List<ArquivoDto>> GetAll()
         {
             var listaPedidos = await _arquivoRepository.GetAll();
