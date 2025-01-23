@@ -68,7 +68,7 @@ namespace FIAPX.Cadastro.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Erro ao tentar baixar o arquivo: {ex.Message}");
+                return BadRequest($"{ex.Message}");
             }
         }
     }

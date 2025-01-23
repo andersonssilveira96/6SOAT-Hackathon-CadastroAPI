@@ -97,21 +97,17 @@ namespace FIAPX.Cadastro.Application.UseCase
         }
 
         public async Task<Stream> DownloadZip(string key)
-        {
-            try
-            {
-                var s3Object = await s3Client.GetObjectAsync(_s3BucketName, $"{key}/snapshots.zip");
+        {            
+            if (!Guid.TryParse(key, out Guid id))
+                throw new Exception("ID inválido.");
 
-                return s3Object.ResponseStream;
-            }
-            catch (AmazonS3Exception s3Exception)
-            {
-                throw new Exception($"Erro ao acessar o S3: {s3Exception.Message}");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Erro inesperado: {ex.Message}");
-            }
+            var arquivo = await _arquivoRepository.GetById(id);
+            if (arquivo is null)
+                throw new Exception("Arquivo não encontrado.");
+
+            var s3Object = await s3Client.GetObjectAsync(_s3BucketName, $"{key}/snapshots.zip");
+
+            return s3Object.ResponseStream;          
         }
     }
 }
