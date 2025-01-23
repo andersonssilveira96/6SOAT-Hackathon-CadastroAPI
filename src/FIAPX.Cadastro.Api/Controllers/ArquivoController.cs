@@ -29,9 +29,9 @@ namespace FIAPX.Cadastro.Api.Controllers
                 return BadRequest("Apenas arquivos de vídeo são permitidos.");
             }
 
-            if (file.Length > 52428800) // 50 MB
+            if (file.Length > 524288000) // 500 MB
             {
-                return BadRequest("O arquivo enviado é maior que o limite permitido (50 MB).");
+                return BadRequest("O arquivo enviado é maior que o limite permitido (500 MB).");
             }
 
             var arquivo = new ArquivoDto

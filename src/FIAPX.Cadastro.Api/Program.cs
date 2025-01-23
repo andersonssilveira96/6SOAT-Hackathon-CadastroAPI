@@ -5,12 +5,13 @@ using FIAPX.Cadastro.Infra.MessageBroker;
 using FIAPX.Cadastro.Infra.Data.Context;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using FIAPX.Cadastro.Domain.Consumer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 524288000; });
+builder.Services.Configure<FormOptions>(options => { options.MultipartBodyLengthLimit = 5242880000; });
 
-builder.WebHost.ConfigureKestrel(options => {  options.Limits.MaxRequestBodySize = 524288000; });
+builder.WebHost.ConfigureKestrel(options => {  options.Limits.MaxRequestBodySize = 5242880000; });
 
 builder.Services.AddControllers();
 
@@ -31,6 +32,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// Invocar o serviço
+using var scope = app.Services.CreateScope();
+var messageConsumer = scope.ServiceProvider.GetRequiredService<IMessageBrokerConsumer>();
+_ = Task.Run(() => messageConsumer.ReceiveMessageAsync());
 
 app.UseMiddleware<UnitOfWorkMiddleware>();
 

@@ -38,12 +38,7 @@ namespace FIAPX.Cadastro.Application.UseCase
                     await _messageBrokerProducer.SendMessageAsync(arquivo);
                 };                          
 
-                Console.WriteLine("Arquivo enviado com sucesso!");
-            }
-            catch (AmazonS3Exception e)
-            {
-                Console.WriteLine($"Erro ao acessar o S3: {e.Message}");                
-            }
+            }          
             catch (Exception e)
             {
                 Console.WriteLine($"Erro geral: {e.Message}");              
@@ -61,8 +56,6 @@ namespace FIAPX.Cadastro.Application.UseCase
             };
 
             var response = await s3Client.PutObjectAsync(uploadRequest);
-
-            Console.WriteLine($"Status do upload: {response.HttpStatusCode}");
         }
         private static string GetVideoExtensionFromContentType(string contentType)
         {
@@ -99,7 +92,7 @@ namespace FIAPX.Cadastro.Application.UseCase
             if (!Enum.IsDefined(typeof(StatusEnum), status))
                 throw new Exception($"Status {status} inválido");
 
-            arquivo.AtualizarStatus((StatusEnum)status);
+            arquivo.UpdateStatus((StatusEnum)status);
 
             return _mapper.Map<ArquivoDto>(await _arquivoRepository.Update(arquivo));
         }

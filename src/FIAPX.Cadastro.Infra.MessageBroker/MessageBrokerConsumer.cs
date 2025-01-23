@@ -30,7 +30,7 @@ namespace FIAPX.Cadastro.Infra.MessageBroker
             _connection = await factory.CreateConnectionAsync();
             _channel = await _connection.CreateChannelAsync();
 
-            await _channel.QueueDeclareAsync("pedidos-atualizados", exclusive: false);
+            await _channel.QueueDeclareAsync("arquivos-atualizados", exclusive: false);
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.ReceivedAsync += async (model, eventArgs) => {
@@ -46,7 +46,7 @@ namespace FIAPX.Cadastro.Infra.MessageBroker
                 await _arquivoUseCase.UpdateStatus(arquivo.Id, (int)arquivo.Status);
             };
 
-            await _channel.BasicConsumeAsync(queue: "pedidos-atualizados", autoAck: false, consumer: consumer);
+            await _channel.BasicConsumeAsync(queue: "arquivos-atualizados", autoAck: false, consumer: consumer);
         }
 
         public void Dispose()
