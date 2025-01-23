@@ -16,6 +16,8 @@ namespace FIAPX.Cadastro.Application.UseCase
         private readonly IMapper _mapper;
         private readonly IMessageBrokerProducer _messageBrokerProducer;
         private readonly string _s3BucketName = "fiapxarquivosbucket";
+        private static readonly RegionEndpoint BucketRegion = RegionEndpoint.USEast1;
+        private static readonly IAmazonS3 s3Client = new AmazonS3Client(BucketRegion);
 
         public ArquivoUseCase(IArquivoRepository arquivoRepository, IMapper mapper, IMessageBrokerProducer messageBrokerProducer)
         {
@@ -30,13 +32,10 @@ namespace FIAPX.Cadastro.Application.UseCase
                 var arquivo = ArquivoFactory.Create(arquivoDto);
 
                 await _arquivoRepository.CreateFile(arquivo);
+                
+                await UploadFileAsync(s3Client, stream, _s3BucketName, arquivo.Id.ToString(), arquivo.ContentType);
 
-                using (var s3Client = new AmazonS3Client(RegionEndpoint.USEast1))
-                {
-                    await UploadFileAsync(s3Client, stream, _s3BucketName, arquivo.Id.ToString(), arquivo.ContentType);
-
-                    await _messageBrokerProducer.SendMessageAsync(arquivo);
-                };                          
+                await _messageBrokerProducer.SendMessageAsync(arquivo);                                         
 
             }          
             catch (Exception e)
@@ -95,6 +94,24 @@ namespace FIAPX.Cadastro.Application.UseCase
             arquivo.UpdateStatus((StatusEnum)status);
 
             return _mapper.Map<ArquivoDto>(await _arquivoRepository.Update(arquivo));
+        }
+
+        public async Task<Stream> DownloadZip(string key)
+        {
+            try
+            {
+                var s3Object = await s3Client.GetObjectAsync(_s3BucketName, $"{key}/snapshots.zip");
+
+                return s3Object.ResponseStream;
+            }
+            catch (AmazonS3Exception s3Exception)
+            {
+                throw new Exception($"Erro ao acessar o S3: {s3Exception.Message}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro inesperado: {ex.Message}");
+            }
         }
     }
 }

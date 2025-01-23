@@ -54,5 +54,22 @@ namespace FIAPX.Cadastro.Api.Controllers
 
             return Ok(arquivos);
         }
+
+        [HttpGet("download-zip/{key}")]        
+        public async Task<IActionResult> DownloadZip(string key)
+        {
+            try
+            {
+                var fileStream = await _arquivoUseCase.DownloadZip(key);
+
+                var fileName = Path.GetFileName(key);
+
+                return File(fileStream, "application/zip", fileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao tentar baixar o arquivo: {ex.Message}");
+            }
+        }
     }
 }
