@@ -6,6 +6,9 @@ using FIAPX.Cadastro.Infra.Data.Context;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using FIAPX.Cadastro.Domain.Consumer;
+using FIAPX.Cadastro.Api.Extensions;
+using FIAPX.Cadastro.Api.Helper;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +19,34 @@ builder.WebHost.ConfigureKestrel(options => {  options.Limits.MaxRequestBodySize
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "FIAPX Cadastro API", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "JWT Authorization header using the Bearer scheme.",
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] {}
+        }
+    });
+});
 
 builder.Services.AddApplicationService();
 builder.Services.AddInfraDataServices();
@@ -24,6 +54,9 @@ builder.Services.AddInfraMessageBrokerServices();
 
 builder.Services.AddTransient<UnitOfWorkMiddleware>();
 builder.Services.AddDbContext<FIAPXContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
+
+builder.Services.Configure<CognitoAuthConfig>(builder.Configuration.GetSection("CognitoConfig"));
+builder.Services.AddAuthenticationConfig();
 
 var app = builder.Build();
 

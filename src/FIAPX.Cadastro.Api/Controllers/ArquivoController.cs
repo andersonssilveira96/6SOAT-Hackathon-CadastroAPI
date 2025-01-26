@@ -1,11 +1,14 @@
 using FIAPX.Cadastro.Application.DTOs;
 using FIAPX.Cadastro.Application.UseCase;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FIAPX.Cadastro.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
+
     public class ArquivoController : ControllerBase
     {       
         private readonly ILogger<ArquivoController> _logger;
@@ -17,36 +20,52 @@ namespace FIAPX.Cadastro.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadVideo(IFormFile file)
+        public async Task<IActionResult> UploadVideos(List<IFormFile> files)
         {
-            if (file == null || file.Length == 0)
+            if (files == null || files.Count == 0)
             {
-                return BadRequest("Nenhum arquivo foi enviado ou o arquivo está vazio.");
+                return BadRequest("Nenhum arquivo foi enviado.");
             }
 
-            if (!file.ContentType.StartsWith("video/"))
+            var tamanhoMaximo = 524288000; // 500 MB
+            var arquivosEnviados = new List<object>();
+
+            foreach (var file in files)
             {
-                return BadRequest("Apenas arquivos de vídeo são permitidos.");
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest($"O arquivo '{file?.FileName}' está vazio.");
+                }
+
+                if (!file.ContentType.StartsWith("video/"))
+                {
+                    return BadRequest($"O arquivo '{file.FileName}' não é um vídeo válido.");
+                }
+
+                if (file.Length > tamanhoMaximo)
+                {
+                    return BadRequest($"O arquivo '{file.FileName}' excede o tamanho permitido de 500 MB.");
+                }
+
+                var arquivo = new ArquivoDto
+                {
+                    ContentType = file.ContentType,
+                    FileName = file.FileName
+                };
+
+                using var stream = file.OpenReadStream();
+
+                await _arquivoUseCase.CreateFile(arquivo, stream);
+
+                arquivosEnviados.Add(new { file.FileName, Status = "Upload realizado com sucesso!" });
             }
 
-            if (file.Length > 524288000) // 500 MB
+            return Ok(new
             {
-                return BadRequest("O arquivo enviado é maior que o limite permitido (500 MB).");
-            }
-
-            var arquivo = new ArquivoDto
-            {
-                ContentType = file.ContentType,
-                FileName = file.FileName              
-            };
-
-            using var stream = file.OpenReadStream();
-
-            await _arquivoUseCase.CreateFile(arquivo, stream);
-
-            return Ok(new { Message = "Upload realizado com sucesso!" });           
+                Message = "Upload concluído.",
+                Arquivos = arquivosEnviados
+            });
         }
-
         [HttpGet]
         public async Task<IActionResult> Get()
         {
