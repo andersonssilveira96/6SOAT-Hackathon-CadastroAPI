@@ -13,11 +13,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D229E192-6D3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{6457194A-0297-42DC-82AA-900663B8705C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIAPX.Cadastro.Domain.Tests", "..\..\tests\FIAPX.Cadastro.Domain.Tests\FIAPX.Cadastro.Domain.Tests.csproj", "{5632615B-9E0F-4846-A6C0-5867F22B8E00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIAPX.Cadastro.Tests", "..\..\tests\FIAPX.Cadastro.Domain.Tests\FIAPX.Cadastro.Tests.csproj", "{5632615B-9E0F-4846-A6C0-5867F22B8E00}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIAPX.Cadastro.Infra.Data", "..\FIAPX.Cadastro.Infra.Data\FIAPX.Cadastro.Infra.Data.csproj", "{6948F848-F641-45EC-94C0-85A3735D71B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FIAPX.Cadastro.Infra.MessageBroker", "..\FIAPX.Cadastro.Infra.MessageBroker\FIAPX.Cadastro.Infra.MessageBroker.csproj", "{821AE1C2-5DF1-4D4F-925E-13B4A438AE9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FIAPX.Cadastro.Infra.MessageBroker", "..\FIAPX.Cadastro.Infra.MessageBroker\FIAPX.Cadastro.Infra.MessageBroker.csproj", "{821AE1C2-5DF1-4D4F-925E-13B4A438AE9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
