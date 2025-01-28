@@ -16,14 +16,13 @@ namespace FIAPX.Cadastro.Application.UseCase
         private readonly IMapper _mapper;
         private readonly IMessageBrokerProducer _messageBrokerProducer;
         private readonly string _s3BucketName = "fiapxarquivosbucket";
-        private static readonly RegionEndpoint BucketRegion = RegionEndpoint.USEast1;
-        private static readonly IAmazonS3 s3Client = new AmazonS3Client(BucketRegion);
-
-        public ArquivoUseCase(IArquivoRepository arquivoRepository, IMapper mapper, IMessageBrokerProducer messageBrokerProducer)
+        private readonly IAmazonS3 _s3Client;
+        public ArquivoUseCase(IArquivoRepository arquivoRepository, IMapper mapper, IMessageBrokerProducer messageBrokerProducer, IAmazonS3 s3Client)
         {
             _arquivoRepository = arquivoRepository;
             _mapper = mapper;
             _messageBrokerProducer = messageBrokerProducer;
+            _s3Client = s3Client;
         }
         public async Task CreateFile(ArquivoDto arquivoDto, Stream stream)
         {
@@ -33,7 +32,7 @@ namespace FIAPX.Cadastro.Application.UseCase
 
                 await _arquivoRepository.CreateFile(arquivo);
                 
-                await UploadFileAsync(s3Client, stream, _s3BucketName, arquivo.Id.ToString(), arquivo.ContentType);
+                await UploadFileAsync(_s3Client, stream, _s3BucketName, arquivo.Id.ToString(), arquivo.ContentType);
 
                 await _messageBrokerProducer.SendMessageAsync(arquivo);                                         
 
@@ -74,9 +73,9 @@ namespace FIAPX.Cadastro.Application.UseCase
 
             return videoMimeMapping.TryGetValue(contentType, out var extension) ? extension : string.Empty;
         }
-        public async Task<List<ArquivoDto>> GetAll()
+        public async Task<List<ArquivoDto>> GetAllByUserId(Guid userId)
         {
-            var listaPedidos = await _arquivoRepository.GetAll();
+            var listaPedidos = await _arquivoRepository.GetAllByUserId(userId);
             
             return _mapper.Map<List<ArquivoDto>>(listaPedidos);
         }
@@ -105,7 +104,7 @@ namespace FIAPX.Cadastro.Application.UseCase
             if (arquivo is null)
                 throw new Exception("Arquivo não encontrado.");
 
-            var s3Object = await s3Client.GetObjectAsync(_s3BucketName, $"{key}/snapshots.zip");
+            var s3Object = await _s3Client.GetObjectAsync(_s3BucketName, $"{key}/snapshots.zip");
 
             return s3Object.ResponseStream;          
         }

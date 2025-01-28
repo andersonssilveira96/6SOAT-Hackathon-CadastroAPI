@@ -2,6 +2,7 @@ using FIAPX.Cadastro.Application.DTOs;
 using FIAPX.Cadastro.Application.UseCase;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FIAPX.Cadastro.Api.Controllers
 {
@@ -50,7 +51,8 @@ namespace FIAPX.Cadastro.Api.Controllers
                 var arquivo = new ArquivoDto
                 {
                     ContentType = file.ContentType,
-                    FileName = file.FileName
+                    FileName = file.FileName,
+                    UserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString())
                 };
 
                 using var stream = file.OpenReadStream();
@@ -69,7 +71,7 @@ namespace FIAPX.Cadastro.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var arquivos = await _arquivoUseCase.GetAll();
+            var arquivos = await _arquivoUseCase.GetAllByUserId(Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString()));
 
             return Ok(arquivos);
         }

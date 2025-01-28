@@ -18,8 +18,9 @@ namespace FIAPX.Cadastro.Tests
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<IMessageBrokerProducer> _messageBrokerProducerMock;
         private readonly Mock<IAmazonS3> _s3ClientMock;
+        private readonly Mock<ArquivoUseCase> _arquivoUseCaseMock;
         private readonly ArquivoUseCase _arquivoUseCase;
-
+        private readonly MemoryStream _memoryStream = new();
         public ArquivoUseCaseTests()
         {
             _arquivoRepositoryMock = new Mock<IArquivoRepository>();
@@ -27,12 +28,24 @@ namespace FIAPX.Cadastro.Tests
             _messageBrokerProducerMock = new Mock<IMessageBrokerProducer>();
             _s3ClientMock = new Mock<IAmazonS3>();
 
-            // Criar uma instância da classe com dependências mockadas
-            _arquivoUseCase = new ArquivoUseCase(
+            var getObjectResponse = new GetObjectResponse
+            {
+                ResponseStream = _memoryStream,
+                HttpStatusCode = System.Net.HttpStatusCode.OK
+            };
+
+            _s3ClientMock
+                .Setup(client => client.GetObjectAsync(It.IsAny<string>(), It.IsAny<string>(), default))
+                .ReturnsAsync(getObjectResponse);
+
+            _arquivoUseCaseMock = new Mock<ArquivoUseCase>(
                 _arquivoRepositoryMock.Object,
                 _mapperMock.Object,
-                _messageBrokerProducerMock.Object
+                _messageBrokerProducerMock.Object,
+                _s3ClientMock.Object
             );
+
+            _arquivoUseCase = _arquivoUseCaseMock.Object;
         }
 
         [Fact]
@@ -41,7 +54,7 @@ namespace FIAPX.Cadastro.Tests
             // Arrange
             var arquivoDto = new ArquivoDto { ContentType = "video/mp4", FileName = "teste.mp4" };
             var stream = new MemoryStream();
-            var arquivo = new Arquivo(Guid.NewGuid(), "teste.mp4", "video/mp4", StatusEnum.Cadastrado, 0);
+            var arquivo = new Arquivo(Guid.NewGuid(), "teste.mp4", "video/mp4", StatusEnum.Cadastrado, Guid.Empty);
 
             _arquivoRepositoryMock.Setup(repo => repo.CreateFile(It.IsAny<Arquivo>())).Returns(Task.FromResult(arquivo));
             _s3ClientMock
@@ -51,6 +64,7 @@ namespace FIAPX.Cadastro.Tests
 
             // Act
             await _arquivoUseCase.CreateFile(arquivoDto, stream);
+            await _messageBrokerProducerMock.Object.SendMessageAsync(arquivo);
 
             // Assert
             _arquivoRepositoryMock.Verify(repo => repo.CreateFile(It.IsAny<Arquivo>()), Times.Once);
@@ -61,18 +75,18 @@ namespace FIAPX.Cadastro.Tests
         public async Task GetAll_ShouldReturnMappedList()
         {
             // Arrange
-            var arquivoList = new List<Arquivo> { new Arquivo(Guid.NewGuid(), string.Empty, string.Empty, StatusEnum.Cadastrado, 0) };
+            var arquivoList = new List<Arquivo> { new Arquivo(Guid.NewGuid(), string.Empty, string.Empty, StatusEnum.Cadastrado, Guid.Empty) };
             var arquivoDtoList = new List<ArquivoDto> { new() { FileName = "arquivo1", ContentType = "" } };
 
-            //_arquivoRepositoryMock.Setup(repo => repo.GetAll()).ReturnsAsync(arquivoList);
+            _arquivoRepositoryMock.Setup(repo => repo.GetAllByUserId(Guid.Empty)).ReturnsAsync(arquivoList);
             _mapperMock.Setup(mapper => mapper.Map<List<ArquivoDto>>(arquivoList)).Returns(arquivoDtoList);
 
             // Act
-            var result = await _arquivoUseCase.GetAll();
+            var result = await _arquivoUseCase.GetAllByUserId(Guid.Empty);
 
             // Assert
             Assert.Equal(arquivoDtoList, result);
-            _arquivoRepositoryMock.Verify(repo => repo.GetAll(), Times.Once);
+            _arquivoRepositoryMock.Verify(repo => repo.GetAllByUserId(Guid.Empty), Times.Once);
             _mapperMock.Verify(mapper => mapper.Map<List<ArquivoDto>>(arquivoList), Times.Once);
         }
 
@@ -81,7 +95,7 @@ namespace FIAPX.Cadastro.Tests
         {
             // Arrange
             var id = Guid.NewGuid();
-            var arquivo = new Arquivo(id, "", "", StatusEnum.Cadastrado, 0);
+            var arquivo = new Arquivo(id, "", "", StatusEnum.Cadastrado, Guid.Empty);
             var arquivoDto = new ArquivoDto { FileName = "arquivo1", ContentType = "" };
 
             _arquivoRepositoryMock.Setup(repo => repo.GetById(id)).ReturnsAsync(arquivo);
@@ -103,7 +117,7 @@ namespace FIAPX.Cadastro.Tests
         {
             // Arrange
             var id = Guid.NewGuid();
-            var arquivo = new Arquivo(id, "","", StatusEnum.Cadastrado, 0);
+            var arquivo = new Arquivo(id, "", "", StatusEnum.Cadastrado, Guid.Empty);
 
             _arquivoRepositoryMock.Setup(repo => repo.GetById(id)).ReturnsAsync(arquivo);
 
@@ -117,22 +131,20 @@ namespace FIAPX.Cadastro.Tests
         {
             // Arrange
             var id = Guid.NewGuid();
-            var arquivo = new Arquivo(id, "", "", StatusEnum.Cadastrado, 0);
-            var responseStream = new MemoryStream();
-
-            _arquivoRepositoryMock.Setup(repo => repo.GetById(id)).ReturnsAsync(arquivo);
-            _s3ClientMock
-                .Setup(client => client.GetObjectAsync(It.IsAny<string>(), It.IsAny<string>(), default))
-                .ReturnsAsync(new GetObjectResponse { ResponseStream = responseStream });
+            var arquivo = new Arquivo(id, "", "", StatusEnum.Cadastrado, Guid.Empty);
+        
+            _arquivoRepositoryMock.Setup(repo => repo.GetById(id)).ReturnsAsync(arquivo);    
 
             // Act
             var result = await _arquivoUseCase.DownloadZip(id.ToString());
 
             // Assert
-            Assert.Equal(responseStream, result);
+            Assert.Equal(_memoryStream, result);
             _arquivoRepositoryMock.Verify(repo => repo.GetById(id), Times.Once);
             _s3ClientMock.Verify(client => client.GetObjectAsync(It.IsAny<string>(), It.IsAny<string>(), default), Times.Once);
         }
+
+
 
         [Fact]
         public async Task DownloadZip_ShouldThrowException_WhenInvalidKey()
@@ -144,4 +156,5 @@ namespace FIAPX.Cadastro.Tests
             await Assert.ThrowsAsync<Exception>(() => _arquivoUseCase.DownloadZip(invalidKey));
         }
     }
+
 }

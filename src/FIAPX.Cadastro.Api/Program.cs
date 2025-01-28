@@ -9,6 +9,9 @@ using FIAPX.Cadastro.Domain.Consumer;
 using FIAPX.Cadastro.Api.Extensions;
 using FIAPX.Cadastro.Api.Helper;
 using Microsoft.OpenApi.Models;
+using Amazon.S3;
+using Amazon;
+using Amazon.Extensions.NETCore.Setup;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +54,10 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddApplicationService();
 builder.Services.AddInfraDataServices();
 builder.Services.AddInfraMessageBrokerServices();
+builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
+{
+    Region = RegionEndpoint.USEast1 
+});
 
 builder.Services.AddTransient<UnitOfWorkMiddleware>();
 builder.Services.AddDbContext<FIAPXContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
@@ -65,6 +72,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.ApplyMigrations();
 
 // Invocar o serviço
 using var scope = app.Services.CreateScope();

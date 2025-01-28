@@ -25,10 +25,8 @@ namespace FIAPX.Cadastro.Infra.Data.Repositories
             return arquivo;
         }
 
-        public async Task<List<Arquivo>> GetAll() => await _context.Arquivo.ToListAsync();
-
-        public async Task<Arquivo> GetById(Guid id) => await _context.Arquivo.FirstOrDefaultAsync(x => x.Id == id);        
-
+        public async Task<List<Arquivo>> GetAllByUserId(Guid userId) => await _context.Arquivo.Where(x => x.UserId == userId).ToListAsync();
+        public async Task<Arquivo> GetById(Guid id) => await _context.Arquivo.FirstOrDefaultAsync(x => x.Id == id);       
         public async Task<Arquivo> Update(Arquivo arquivo)
         {
             var entry = _context.Entry(arquivo);

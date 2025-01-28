@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FIAPX.Cadastro.Infra.Data.Migrations
 {
     [DbContext(typeof(FIAPXContext))]
-    [Migration("20250118172311_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250128014525_InitialDataBase")]
+    partial class InitialDataBase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,8 +42,8 @@ namespace FIAPX.Cadastro.Infra.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
