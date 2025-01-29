@@ -64,8 +64,7 @@ namespace FIAPX.Cadastro.Tests
 
             // Act
             await _arquivoUseCase.CreateFile(arquivoDto, stream);
-            await _messageBrokerProducerMock.Object.SendMessageAsync(arquivo);
-
+         
             // Assert
             _arquivoRepositoryMock.Verify(repo => repo.CreateFile(It.IsAny<Arquivo>()), Times.Once);
             _messageBrokerProducerMock.Verify(producer => producer.SendMessageAsync(It.IsAny<Arquivo>()), Times.Once);

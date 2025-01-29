@@ -3,9 +3,11 @@ using FIAPX.Cadastro.Application.DTOs;
 using FIAPX.Cadastro.Application.UseCase;
 using FIAPX.Cadastro.Domain.Entities;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FIAPX.Cadastro.Application
 {
+    [ExcludeFromCodeCoverage]
     public static class ServiceApplicationExtensions
     {
         public static IServiceCollection AddApplicationService(this IServiceCollection services)

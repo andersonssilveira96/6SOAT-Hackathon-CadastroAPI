@@ -11,7 +11,10 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.7.412.2" />
-    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
