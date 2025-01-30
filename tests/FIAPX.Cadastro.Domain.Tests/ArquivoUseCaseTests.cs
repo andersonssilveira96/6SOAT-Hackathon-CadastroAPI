@@ -71,6 +71,23 @@ namespace FIAPX.Cadastro.Tests
         }
 
         [Fact]
+        public async Task CreateFile_ShouldGiveAnException_WithInvalidInput()
+        {
+            // Arrange
+            var arquivoDto = new ArquivoDto { ContentType = "video/mp25", FileName = "teste.mp4" };
+            var stream = new MemoryStream();
+            var arquivo = new Arquivo(Guid.NewGuid(), "teste.mp25", "video/mp25", StatusEnum.Cadastrado, Guid.Empty);
+
+            _arquivoRepositoryMock.Setup(repo => repo.CreateFile(It.IsAny<Arquivo>())).Returns(Task.FromResult(arquivo));
+            _s3ClientMock
+                .Setup(client => client.PutObjectAsync(It.IsAny<PutObjectRequest>(), default))
+                .ReturnsAsync(new PutObjectResponse());
+            _messageBrokerProducerMock.Setup(producer => producer.SendMessageAsync(It.IsAny<Arquivo>())).Returns(Task.CompletedTask);
+
+            await Assert.ThrowsAsync<Exception>(() => _arquivoUseCase.CreateFile(arquivoDto, stream));
+        }
+
+        [Fact]
         public async Task GetAll_ShouldReturnMappedList()
         {
             // Arrange
@@ -95,7 +112,7 @@ namespace FIAPX.Cadastro.Tests
             // Arrange
             var id = Guid.NewGuid();
             var arquivo = new Arquivo(id, "", "", StatusEnum.Cadastrado, Guid.Empty);
-            var arquivoDto = new ArquivoDto { FileName = "arquivo1", ContentType = "" };
+            var arquivoDto = new ArquivoDto { Id = id, FileName = "arquivo1", ContentType = "" };
 
             _arquivoRepositoryMock.Setup(repo => repo.GetById(id)).ReturnsAsync(arquivo);
             _arquivoRepositoryMock.Setup(repo => repo.Update(It.IsAny<Arquivo>())).ReturnsAsync(arquivo);
@@ -112,6 +129,18 @@ namespace FIAPX.Cadastro.Tests
         }
 
         [Fact]
+        public async Task CreateFile_ShouldThrowException_WhenInvalidFile()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+
+            _arquivoRepositoryMock.Setup(repo => repo.GetById(id)).ThrowsAsync(new Exception("Erro ao buscar o arquivo"));
+
+            // Act & Assert
+            await Assert.ThrowsAsync<NullReferenceException>(() => _arquivoUseCase.CreateFile((ArquivoDto)null, new MemoryStream()));
+        }
+
+        [Fact]
         public async Task UpdateStatus_ShouldThrowException_WhenInvalidStatus()
         {
             // Arrange
@@ -119,6 +148,19 @@ namespace FIAPX.Cadastro.Tests
             var arquivo = new Arquivo(id, "", "", StatusEnum.Cadastrado, Guid.Empty);
 
             _arquivoRepositoryMock.Setup(repo => repo.GetById(id)).ReturnsAsync(arquivo);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<Exception>(() => _arquivoUseCase.UpdateStatus(id, 999));
+            _arquivoRepositoryMock.Verify(repo => repo.GetById(id), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateStatus_ShouldThrowException_WhenInvalidArquivoId()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+
+            _arquivoRepositoryMock.Setup(repo => repo.GetById(id)).ReturnsAsync((Arquivo)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<Exception>(() => _arquivoUseCase.UpdateStatus(id, 999));
@@ -154,6 +196,17 @@ namespace FIAPX.Cadastro.Tests
             // Act & Assert
             await Assert.ThrowsAsync<Exception>(() => _arquivoUseCase.DownloadZip(invalidKey));
         }
-    }
 
+        [Fact]
+        public async Task DownloadZip_ShouldReturnException_WhenNullFile()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+
+            _arquivoRepositoryMock.Setup(repo => repo.GetById(id)).ReturnsAsync((Arquivo)null);
+
+            // Assert & Act
+            await Assert.ThrowsAsync<Exception>(() => _arquivoUseCase.DownloadZip(id.ToString()));
+        }
+    }
 }

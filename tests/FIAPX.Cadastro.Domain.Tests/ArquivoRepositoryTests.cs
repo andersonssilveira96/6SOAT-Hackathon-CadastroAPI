@@ -1,4 +1,5 @@
-﻿using FIAPX.Cadastro.Domain.Entities;
+﻿using FIAPX.Cadastro.Application.DTOs;
+using FIAPX.Cadastro.Domain.Entities;
 using FIAPX.Cadastro.Domain.Enum;
 using FIAPX.Cadastro.Infra.Data.Context;
 using FIAPX.Cadastro.Infra.Data.Repositories;
@@ -105,6 +106,18 @@ namespace FIAPX.Cadastro.Tests
             var dbArquivo = await context.Arquivo.FirstOrDefaultAsync(a => a.Id == arquivo.Id);
             Assert.NotNull(dbArquivo);
             Assert.Equal(StatusEnum.Processado, dbArquivo.Status);
+        }
+
+        [Fact]
+        public async Task CreateFile_ShouldReturnException_WhenNull()
+        {
+            // Arrange
+            var options = CreateInMemoryDatabaseOptions();
+            await using var context = CreateContext(options);
+            var repository = new ArquivoRepository(context);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await repository.CreateFile((Arquivo)null));            
         }
     }
 }

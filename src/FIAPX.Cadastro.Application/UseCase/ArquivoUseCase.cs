@@ -39,16 +39,20 @@ namespace FIAPX.Cadastro.Application.UseCase
             }          
             catch (Exception e)
             {
-                Console.WriteLine($"Erro geral: {e.Message}");              
+                throw;
             }
         }
 
         private static async Task UploadFileAsync(IAmazonS3 s3Client, Stream fileStream, string bucketName, string keyName, string contentType)
-        {            
+        {
+            var extension = GetVideoExtensionFromContentType(contentType);
+            if (string.IsNullOrEmpty(extension))
+                throw new Exception("Invalid extension");
+
             var uploadRequest = new PutObjectRequest
             {
                 BucketName = bucketName,
-                Key = $"{keyName}/{keyName}{GetVideoExtensionFromContentType(contentType)}",
+                Key = $"{keyName}/{keyName}{extension}",
                 InputStream = fileStream,
                 ContentType = contentType
             };
