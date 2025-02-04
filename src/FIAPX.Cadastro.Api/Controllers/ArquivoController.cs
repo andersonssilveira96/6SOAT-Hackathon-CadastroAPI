@@ -48,11 +48,19 @@ namespace FIAPX.Cadastro.Api.Controllers
                     return BadRequest($"O arquivo '{file.FileName}' excede o tamanho permitido de 500 MB.");
                 }
 
+                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString());
                 var arquivo = new ArquivoDto
                 {
+                    Id = Guid.NewGuid(),
                     ContentType = file.ContentType,
                     FileName = file.FileName,
-                    UserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Guid.Empty.ToString())
+                    UserId = userId,
+                    User = new UsuarioDto 
+                    {
+                        Id = userId,
+                        Name = User.FindFirst("name")?.Value!,
+                        Email = User.FindFirst(ClaimTypes.Email)?.Value!
+                    }
                 };
 
                 using var stream = file.OpenReadStream();

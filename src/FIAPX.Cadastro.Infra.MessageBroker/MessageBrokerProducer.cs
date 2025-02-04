@@ -1,4 +1,5 @@
 ﻿using FIAPX.Cadastro.Domain.Producer;
+using Microsoft.AspNetCore.Http;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
@@ -8,6 +9,11 @@ namespace FIAPX.Cadastro.Infra.MessageBroker
 {
     public class MessageBrokerProducer : IMessageBrokerProducer
     {
+        private IHttpContextAccessor _httpContext;
+        public MessageBrokerProducer(IHttpContextAccessor httpContext)
+        {
+            _httpContext = httpContext;
+        }
         public async Task SendMessageAsync<T>(T message)
         {
             var factory = new ConnectionFactory
@@ -29,7 +35,6 @@ namespace FIAPX.Cadastro.Infra.MessageBroker
 
             string json = JsonSerializer.Serialize(message, options);
             var body = Encoding.UTF8.GetBytes(json);
-
             await channel.BasicPublishAsync(exchange: "", routingKey: "arquivos-novos", body: body);
         }
     }

@@ -61,7 +61,7 @@ builder.Services.AddAWSService<IAmazonS3>(new AWSOptions
 
 builder.Services.AddTransient<UnitOfWorkMiddleware>();
 builder.Services.AddDbContext<FIAPXContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.Configure<CognitoAuthConfig>(builder.Configuration.GetSection("CognitoConfig"));
 builder.Services.AddAuthenticationConfig();
 

@@ -7,7 +7,7 @@ namespace FIAPX.Cadastro.Application.Factories
     {
         public static Arquivo Create(ArquivoDto arquivoDto)
         {
-            return new Arquivo(Guid.NewGuid(), arquivoDto.FileName, arquivoDto.ContentType, arquivoDto.Status, arquivoDto.UserId);
+            return new Arquivo(arquivoDto.Id, arquivoDto.FileName, arquivoDto.ContentType, arquivoDto.Status, arquivoDto.UserId);
         }
     }
 }

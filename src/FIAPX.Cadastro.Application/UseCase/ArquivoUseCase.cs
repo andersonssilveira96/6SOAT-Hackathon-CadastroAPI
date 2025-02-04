@@ -7,6 +7,7 @@ using FIAPX.Cadastro.Application.Factories;
 using FIAPX.Cadastro.Domain.Enum;
 using FIAPX.Cadastro.Domain.Interfaces.Repositories;
 using FIAPX.Cadastro.Domain.Producer;
+using Microsoft.AspNetCore.Http;
 
 namespace FIAPX.Cadastro.Application.UseCase
 {
@@ -15,26 +16,31 @@ namespace FIAPX.Cadastro.Application.UseCase
         private readonly IArquivoRepository _arquivoRepository;
         private readonly IMapper _mapper;
         private readonly IMessageBrokerProducer _messageBrokerProducer;
-        private readonly string _s3BucketName = "fiapxarquivosbucket";
+        private readonly string _s3BucketName = "fiapxfilesbucket";
         private readonly IAmazonS3 _s3Client;
-        public ArquivoUseCase(IArquivoRepository arquivoRepository, IMapper mapper, IMessageBrokerProducer messageBrokerProducer, IAmazonS3 s3Client)
+        private readonly IHttpContextAccessor _httpContext;
+
+        public ArquivoUseCase(IArquivoRepository arquivoRepository, IMapper mapper, IMessageBrokerProducer messageBrokerProducer, IAmazonS3 s3Client, IHttpContextAccessor httpContext)
         {
             _arquivoRepository = arquivoRepository;
             _mapper = mapper;
             _messageBrokerProducer = messageBrokerProducer;
             _s3Client = s3Client;
+            _httpContext = httpContext;
         }
         public async Task CreateFile(ArquivoDto arquivoDto, Stream stream)
         {
             try
             {
+                //var jwt = _httpContext.HttpContext?.Request.Headers["Authorization"].FirstOrDefault().Replace("Bearer ", "");
+                //var user = 
                 var arquivo = ArquivoFactory.Create(arquivoDto);
 
                 await _arquivoRepository.CreateFile(arquivo);
                 
                 await UploadFileAsync(_s3Client, stream, _s3BucketName, arquivo.Id.ToString(), arquivo.ContentType);
 
-                await _messageBrokerProducer.SendMessageAsync(arquivo);                                         
+                await _messageBrokerProducer.SendMessageAsync(arquivoDto);                                         
 
             }          
             catch (Exception e)

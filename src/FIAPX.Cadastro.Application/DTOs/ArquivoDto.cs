@@ -9,5 +9,6 @@ namespace FIAPX.Cadastro.Application.DTOs
         public required string ContentType { get; set; }
         public StatusEnum Status { get; set; }
         public Guid UserId { get; set; }
+        public UsuarioDto User { get; set; }
     }
 }
