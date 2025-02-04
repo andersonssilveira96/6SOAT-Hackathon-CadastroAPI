@@ -12,7 +12,7 @@ COPY src/FIAPX.Cadastro.Api/FIAPX.Cadastro.sln /
 COPY src ./src
 
 # Restoring just the api project will cause a chain reaction that will resolve the nuget dependencies from all class libraries.
-RUN dotnet restore src/FIAPX.Cadastro.Api
+RUN dotnet restore src/FIAPX.Cadastro.Api/FIAPX.Cadastro.Api.csproj
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
