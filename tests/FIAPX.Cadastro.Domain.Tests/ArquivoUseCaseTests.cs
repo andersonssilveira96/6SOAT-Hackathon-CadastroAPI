@@ -56,7 +56,7 @@ namespace FIAPX.Cadastro.Tests
         public async Task CreateFile_ShouldCallRepositoryAndUpload_WhenValidInput()
         {
             // Arrange
-            var arquivoDto = new ArquivoDto { ContentType = "video/mp4", FileName = "teste.mp4" };
+            var arquivoDto = new ArquivoDto { ContentType = "video/mp4", FileName = "teste.mp4", User = new UsuarioDto { Id = Guid.NewGuid(), Email = "teste@teste.com.br", Name = "Teste" } };
             var stream = new MemoryStream();
             var arquivo = new Arquivo(Guid.NewGuid(), "teste.mp4", "video/mp4", StatusEnum.Cadastrado, Guid.Empty);
 
