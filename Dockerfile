@@ -8,7 +8,7 @@ RUN apk add --upgrade --no-cache ca-certificates && update-ca-certificates
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-COPY FIAPX.Cadastro.Api/FIAPX.Cadastro.Api.sln /
+COPY FIAPX.Cadastro.Api/FIAPX.Cadastro.sln /
 COPY src ./src
 
 # Restoring just the api project will cause a chain reaction that will resolve the nuget dependencies from all class libraries.
