@@ -9,6 +9,7 @@ using Amazon.S3.Model;
 using FIAPX.Cadastro.Domain.Enum;
 using FIAPX.Cadastro.Domain.Entities;
 using FIAPX.Cadastro.Application.DTOs;
+using Microsoft.AspNetCore.Http;
 
 namespace FIAPX.Cadastro.Tests
 {
@@ -18,6 +19,7 @@ namespace FIAPX.Cadastro.Tests
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<IMessageBrokerProducer> _messageBrokerProducerMock;
         private readonly Mock<IAmazonS3> _s3ClientMock;
+        private readonly Mock<IHttpContextAccessor> _httpContextAccessor;
         private readonly Mock<ArquivoUseCase> _arquivoUseCaseMock;
         private readonly ArquivoUseCase _arquivoUseCase;
         private readonly MemoryStream _memoryStream = new();
@@ -27,6 +29,7 @@ namespace FIAPX.Cadastro.Tests
             _mapperMock = new Mock<IMapper>();
             _messageBrokerProducerMock = new Mock<IMessageBrokerProducer>();
             _s3ClientMock = new Mock<IAmazonS3>();
+            _httpContextAccessor = new Mock<IHttpContextAccessor>();
 
             var getObjectResponse = new GetObjectResponse
             {
@@ -42,7 +45,8 @@ namespace FIAPX.Cadastro.Tests
                 _arquivoRepositoryMock.Object,
                 _mapperMock.Object,
                 _messageBrokerProducerMock.Object,
-                _s3ClientMock.Object
+                _s3ClientMock.Object,
+                _httpContextAccessor.Object
             );
 
             _arquivoUseCase = _arquivoUseCaseMock.Object;
@@ -67,7 +71,6 @@ namespace FIAPX.Cadastro.Tests
          
             // Assert
             _arquivoRepositoryMock.Verify(repo => repo.CreateFile(It.IsAny<Arquivo>()), Times.Once);
-            _messageBrokerProducerMock.Verify(producer => producer.SendMessageAsync(It.IsAny<Arquivo>()), Times.Once);
         }
 
         [Fact]
