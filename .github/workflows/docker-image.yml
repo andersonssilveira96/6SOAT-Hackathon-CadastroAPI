@@ -1,8 +1,6 @@
 name: build & deploy
 on:
- pull_request:
-    types:
-      - closed
+ push:
     branches:
       - master 
 jobs:
@@ -13,25 +11,25 @@ jobs:
     steps:
       # Checkout do código
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Configuração do .NET
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.x # Versão do .NET atualizada para 8
 
       # Restore dependências
       - name: Restore dependencies
-        run: dotnet restore FIAPX.Cadastro.sln # Substitua pelo nome do seu arquivo .sln
+        run: dotnet restore src/FIAPX.Cadastro.Api/FIAPX.Cadastro.sln # Substitua pelo nome do seu arquivo .sln
 
       # Build do projeto
       - name: Build project
-        run: dotnet build FIAPX.Cadastro.sln --no-restore --configuration Release
+        run: dotnet build src/FIAPX.Cadastro.Api/FIAPX.Cadastro.sln --no-restore --configuration Release
 
       # Executar os testes e calcular a cobertura
       - name: Run tests and collect coverage
-        run: dotnet test FIAPX.Cadastro.sln --no-build --configuration Release --collect:"XPlat Code Coverage"  --results-directory ./TestResults
+        run: dotnet test src/FIAPX.Cadastro.Api/FIAPX.Cadastro.sln --no-build --configuration Release --collect:"XPlat Code Coverage"  --results-directory ./TestResults
         
       # Instalar o ReportGenerator
       - name: Install ReportGenerator
@@ -47,7 +45,7 @@ jobs:
         
       # Publicar relatório de cobertura
       - name: Upload code coverage report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: '**/coverage.cobertura.xml'
@@ -56,7 +54,7 @@ jobs:
     needs: build   
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: docker login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
