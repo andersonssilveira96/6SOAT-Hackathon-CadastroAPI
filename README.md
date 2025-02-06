@@ -1,6 +1,9 @@
 # 6SOAT Hackathon CadastroAPI
 Repositório que contém o código da API de cadastro de arquivos para o projeto do Hackathon da pós gradução da FIAP.
 
+## Arquitetura
+![image](https://github.com/user-attachments/assets/75f0cce6-2349-468a-9033-c4fe9f3c3b31)
+
 ## Projetos Relacionados
 
 Este repositório faz parte de um conjunto de projetos usados para desenvolver a aplicação como um todo:
